@@ -9144,32 +9144,37 @@ def list_vars(var_type=None):
     Returns:
         list: A list of all defined variables.
     """
-    result = []
+    reserved_vars = {
+        "In",
+        "Out",
+        "get_ipython",
+        "exit",
+        "quit",
+        "json",
+        "getsizeof",
+        "NamespaceMagics",
+        "np",
+        "var_dic_list",
+        "list_vars",
+        "ee",
+        "geemap",
+    }
 
-    for var in globals():
-        reserved_vars = [
-            "In",
-            "Out",
-            "get_ipython",
-            "exit",
-            "quit",
-            "json",
-            "getsizeof",
-            "NamespaceMagics",
-            "np",
-            "var_dic_list",
-            "list_vars",
-            "ee",
-            "geemap",
+    if var_type is None:
+        return [
+            var
+            for var in globals()
+            if not var.startswith("_") and var not in reserved_vars
         ]
 
-        if (not var.startswith("_")) and (var not in reserved_vars):
-            if var_type is not None and isinstance(eval(var), var_type):
-                result.append(var)
-            elif var_type is None:
-                result.append(var)
-
-    return result
+    # Filter by type only after the cheap name checks.
+    return [
+        var
+        for var, value in globals().items()
+        if not var.startswith("_")
+        and var not in reserved_vars
+        and isinstance(value, var_type)
+    ]
 
 
 def extract_transect(
